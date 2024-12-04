@@ -15,26 +15,27 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public void createUsersTable() {
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("DROP TABLE IF EXISTS service_users;\n" +
-                    "DROP SEQUENCE IF EXISTS service_users;");
-
-            statement.executeUpdate("CREATE TABLE service_users (\n" +
-                    "id SERIAL PRIMARY KEY NOT NULL,\n" +
-                    "name VARCHAR(128) NOT NULL,\n" +
-                    "last_name VARCHAR(128) NOT NULL,\n" +
-                    "age INT NOT NULL,\n" +
-                    "UNIQUE (name, last_name)\n" +
-                    ");");
+            statement.executeUpdate("""
+                    CREATE TABLE IF NOT EXISTS service_users (
+                                            id SERIAL PRIMARY KEY,
+                                            name VARCHAR(128) NOT NULL,
+                                            last_name VARCHAR(128) NOT NULL,
+                                            age INT NOT NULL,
+                                            UNIQUE (name, last_name)
+                                            );
+                    """);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     public void dropUsersTable() {
         try (Statement statement = connection.createStatement()) {
-            statement.executeUpdate("DROP TABLE service_users;");
+            statement.executeUpdate("""
+                DROP TABLE IF EXISTS service_users;
+                """);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -47,8 +48,9 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement.setString(2, lastName);
             preparedStatement.setInt(3, age);
             preparedStatement.executeUpdate();
+            System.out.printf("User с именем — %s добавлен в базу данных\n", name);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -57,19 +59,20 @@ public class UserDaoJDBCImpl implements UserDao {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
         try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM service_users;");
+            ResultSet resultSet = statement.executeQuery("""
+                    SELECT * FROM service_users;""");
             while (resultSet.next()) {
                 list.add(new User(resultSet.getString("name"), resultSet.getString("last_name"), resultSet.getByte("age")));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         return list;
     }
@@ -78,7 +81,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (Statement statement = connection.createStatement()) {
             statement.executeUpdate("DELETE FROM service_users;");
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }
