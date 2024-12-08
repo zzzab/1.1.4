@@ -20,8 +20,7 @@ public class UserDaoJDBCImpl implements UserDao {
                                             id SERIAL PRIMARY KEY,
                                             name VARCHAR(128) NOT NULL,
                                             last_name VARCHAR(128) NOT NULL,
-                                            age INT NOT NULL,
-                                            UNIQUE (name, last_name)
+                                            age INT NOT NULL
                                             );
                     """);
         } catch (SQLException e) {

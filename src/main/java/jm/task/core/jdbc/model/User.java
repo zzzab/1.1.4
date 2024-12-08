@@ -1,22 +1,20 @@
 package jm.task.core.jdbc.model;
 
-import org.hibernate.annotations.GeneratorType;
-
 import javax.persistence.*;
 
+@Entity
 @Table(name = "service_users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column (name = "name", length = 128, nullable = false)
     private String name;
 
-    @Column
+    @Column(name = "last_name",length = 128, nullable = false)
     private String lastName;
 
-    @Column
     private Byte age;
 
     public User() {
