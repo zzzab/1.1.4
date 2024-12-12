@@ -4,7 +4,6 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.*;
 
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.Query;
 import java.util.List;
 
@@ -17,10 +16,11 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void createUsersTable() {
-        Session session = factory.openSession();
-        Transaction transaction = session.beginTransaction();
+        Transaction transaction = null;
+        try (Session session = factory.openSession(); ) {
+            transaction = session.beginTransaction();
 
-        Query query = session.createSQLQuery("""
+            Query query = session.createSQLQuery("""
                 CREATE TABLE IF NOT EXISTS service_users (
                                             id SERIAL PRIMARY KEY,
                                             name VARCHAR(128) NOT NULL,
@@ -28,9 +28,14 @@ public class UserDaoHibernateImpl implements UserDao {
                                             age INT NOT NULL
                                             );
                 """).addEntity(User.class);
-        query.executeUpdate();
-        transaction.commit();
-        session.close();
+            query.executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -54,14 +59,13 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction = session.beginTransaction();
             session.save(user);
             transaction.commit();
+            System.out.printf("User с именем — %s добавлен в базу данных\n", name);
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
             }
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
-        System.out.printf("User с именем — %s добавлен в базу данных\n", name);
-
     }
 
     @Override
@@ -89,14 +93,21 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        Session session = factory.openSession();
-        Transaction transaction = session.beginTransaction();
+        Transaction transaction = null;
+        try (Session session = factory.openSession();) {
+            transaction = session.beginTransaction();
 
-        Query query = session.createSQLQuery("""
+            Query query = session.createSQLQuery("""
                 DELETE FROM service_users;
                 """);
-        query.executeUpdate();
-        transaction.commit();
-        session.close();
+            query.executeUpdate();
+            transaction.commit();
+            session.close();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
     }
 }
