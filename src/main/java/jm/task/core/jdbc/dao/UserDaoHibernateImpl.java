@@ -17,17 +17,17 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void createUsersTable() {
         Transaction transaction = null;
-        try (Session session = factory.openSession(); ) {
+        try (Session session = factory.openSession()) {
             transaction = session.beginTransaction();
 
             Query query = session.createSQLQuery("""
-                CREATE TABLE IF NOT EXISTS service_users (
-                                            id SERIAL PRIMARY KEY,
-                                            name VARCHAR(128) NOT NULL,
-                                            last_name VARCHAR(128) NOT NULL,
-                                            age INT NOT NULL
-                                            );
-                """).addEntity(User.class);
+                    CREATE TABLE IF NOT EXISTS service_users (
+                                                id SERIAL PRIMARY KEY,
+                                                name VARCHAR(128) NOT NULL,
+                                                last_name VARCHAR(128) NOT NULL,
+                                                age INT NOT NULL
+                                                );
+                    """).addEntity(User.class);
             query.executeUpdate();
             transaction.commit();
         } catch (Exception e) {
@@ -41,12 +41,12 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void dropUsersTable() {
         Transaction transaction = null;
-        try (Session session = factory.openSession();) {
+        try (Session session = factory.openSession()) {
             transaction = session.beginTransaction();
 
             Query query = session.createSQLQuery("""
-                DROP TABLE IF EXISTS service_users;
-                """).addEntity(User.class);
+                    DROP TABLE IF EXISTS service_users;
+                    """).addEntity(User.class);
             query.executeUpdate();
             transaction.commit();
         } catch (Exception e) {
@@ -103,12 +103,12 @@ public class UserDaoHibernateImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         Transaction transaction = null;
-        try (Session session = factory.openSession();) {
+        try (Session session = factory.openSession()) {
             transaction = session.beginTransaction();
 
             Query query = session.createSQLQuery("""
-                DELETE FROM service_users;
-                """);
+                    DELETE FROM service_users;
+                    """);
             query.executeUpdate();
             transaction.commit();
             session.close();
