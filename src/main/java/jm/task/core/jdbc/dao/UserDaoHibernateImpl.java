@@ -40,15 +40,21 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void dropUsersTable() {
-        Session session = factory.openSession();
-        Transaction transaction = session.beginTransaction();
+        Transaction transaction = null;
+        try (Session session = factory.openSession();) {
+            transaction = session.beginTransaction();
 
-        Query query = session.createSQLQuery("""
+            Query query = session.createSQLQuery("""
                 DROP TABLE IF EXISTS service_users;
                 """).addEntity(User.class);
-        query.executeUpdate();
-        transaction.commit();
-        session.close();
+            query.executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -88,7 +94,10 @@ public class UserDaoHibernateImpl implements UserDao {
     public List<User> getAllUsers() {
         try (Session session = factory.openSession()) {
             return session.createCriteria(User.class).list();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return null;
     }
 
     @Override
